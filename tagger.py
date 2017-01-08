@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+
+# Copyright 2017 Calvin Walton <calvin.walton@kepstin.ca>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import argparse
+import logging
+import mutagen
+import mutagen.mp3
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Some constants that'll get reused a bunch...
+
+# ALL-CAPS as used in most tag formats (ID3v2 TXXX, VorbisComment, etc.)
+TG_UPPER='REPLAYGAIN_TRACK_GAIN'
+TP_UPPER='REPLAYGAIN_TRACK_PEAK'
+AG_UPPER='REPLAYGAIN_ALBUM_GAIN'
+AP_UPPER='REPLAYGAIN_ALBUM_PEAK'
+
+# lowercase as used in ... well, nothing really.
+TG_LOWER='replaygain_track_gain'
+TP_LOWER='replaygain_track_peak'
+AG_LOWER='replaygain_album_gain'
+AP_LOWER='replaygain_album_peak'
+
+# 100% guaranteed random case variations
+TG_MIXED='rEpLaYGaIn_TrAcK_gAiN'
+TP_MIXED='RePLaYgAIn_tRAcK_pEAk'
+AG_MIXED='RePlAYgAIn_aLbUM_GAin'
+AP_MIXED='rEPlayGaiN_AlBum_PeaK'
+
+# The default tag formats (can be overridden by options)
+TG=TG_UPPER
+TP=TP_UPPER
+AG=AG_UPPER
+AP=AP_UPPER
+
+# Format ReplayGain gain adjustment values, either in the standard way
+# or with some non-standard distortions
+def format_rg_gain(gain, args):
+    # Standard format
+    return "{:.2f} dB".format(gain)
+
+# Format ReplayGain peak values, again either in the standard way or with
+# distortions applied
+def format_rg_peak(peak, args):
+    # Standard format
+    # "Six numeric digits in the decimal field (dddddd) is adequate to
+    # accurately represent peak values for 16-bit audio data."
+    return "{:.6f}".format(10.0 ** (peak / 20.0))
+
+def write_id3(id3, args):
+    if args.id3_txxx:
+        if args.tg is not None:
+            id3.add(mutagen.id3.TXXX(desc=TG,
+                text=[format_rg_gain(args.tg, args)]))
+        if args.tp is not None:
+            id3.add(mutagen.id3.TXXX(desc=TP,
+                text=[format_rg_peak(args.tp, args)]))
+        if args.ag is not None:
+            id3.add(mutagen.id3.TXXX(desc=AG,
+                text=[format_rg_gain(args.ag, args)]))
+        if args.ap is not None:
+            id3.add(mutagen.id3.TXXX(desc=AP,
+                text=[format_rg_peak(args.ap, args)]))
+
+    if args.id3_rva2:
+        if args.id3v2_version < 4:
+            logger.warning("Writing ID3v2.4 RVA2 to an ID3v2.3 file")
+        if args.tg is not None:
+            if args.tp is not None:
+                tp = args.tp
+            else:
+                logger.warning("Track peak unset, writing 1.0 to RVA2 tag")
+                tp = 1.0
+            id3.add(mutagen.id3.RVA2(desc='track', channel=1,
+                gain=args.tg, peak=tp))
+        if args.ag is not None:
+            if args.ap is not None:
+                ap = args.ap
+            else:
+                logger.warning("Album peak unset, writing 1.0 to RVA2 tag")
+                ap = 1.0
+            id3.add(mutagen.id3.RVA2(desc='album', channel=1,
+                gain=args.ag, peak=ap))
+
+
+def write_mp3(args):
+    mp3 = mutagen.mp3.MP3(args.file)
+    write_id3(mp3.tags, args)
+    mp3.save(v2_version=args.id3v2_version)
+
+parser = argparse.ArgumentParser(description='ReplayGain tag testing tool')
+
+parser.add_argument('file', help='file to update')
+
+# Gain/peak values to write
+parser.add_argument('--tg', type=float, help='track gain adjustment (dB)')
+parser.add_argument('--tp', type=float, help='track peak level (dBFS)')
+parser.add_argument('--ag', type=float, help='album gain adjustment (dB)')
+parser.add_argument('--ap', type=float, help='album peak level (dBFS)')
+
+# File format handlers to use
+parser.add_argument('--mp3', dest='formats', action='append_const',
+        const=write_mp3, help='write MP3 (usually ID3) format tags')
+
+# Options common to multiple tag formats
+parser.add_argument('--mixed-case', action='store_true',
+        help='for tag formats that preserve case, use a random mix of case')
+
+# Options for specific tag formats
+
+# MP3/ID3
+parser.add_argument('--id3v23', dest='id3v2_version',
+        action='store_const', const=3, default=4,
+        help='write ID3 tags using version 2.3 instead of 2.4')
+parser.add_argument('--id3-txxx', action='store_true',
+        help='write ID3 tags using the modern TXXX format')
+parser.add_argument('--id3-rva2', action='store_true',
+        help='write ID3 tags using RVA2 (2.4) or XRVA (2.3) frames')
+parser.add_argument('--mp3-info', action='store_true',
+        help='write gain values to the MP3 Xing or Info tag')
+parser.add_argument('--mp3-apev2', action='store_true',
+        help='write gain values to an APEv2 tag on MP3 (like mp3gain)')
+
+args = parser.parse_args()
+
+if args.mixed_case:
+    TG=TG_MIXED
+    TP=TP_MIXED
+    AG=AG_MIXED
+    AP=AP_MIXED
+
+for format in args.formats:
+    format(args)
