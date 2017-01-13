@@ -23,6 +23,7 @@
 import argparse
 import logging
 import mutagen
+import mutagen.apev2
 import mutagen.mp3
 
 logging.basicConfig(level=logging.DEBUG)
@@ -103,11 +104,26 @@ def write_id3(id3, args):
             id3.add(mutagen.id3.RVA2(desc='album', channel=1,
                 gain=args.ag, peak=ap))
 
+def write_generic(tags, args):
+    if args.tg is not None:
+        tags[TG] = [format_rg_gain(args.tg, args)]
+    if args.tp is not None:
+        tags[TP] = [format_rg_peak(args.tp, args)]
+    if args.ag is not None:
+        tags[AG] = [format_rg_gain(args.ag, args)]
+    if args.ap is not None:
+        tags[AP] = [format_rg_peak(args.ap, args)]
+
 
 def write_mp3(args):
     mp3 = mutagen.mp3.MP3(args.file)
     write_id3(mp3.tags, args)
     mp3.save(v2_version=args.id3v2_version)
+
+    if args.mp3_apev2:
+        apev2 = mutagen.apev2.APEv2File(args.file)
+        write_generic(apev2, args)
+        apev2.save()
 
 parser = argparse.ArgumentParser(description='ReplayGain tag testing tool')
 

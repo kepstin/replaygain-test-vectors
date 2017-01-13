@@ -24,3 +24,33 @@ and most modern ReplayGain scanning tools.
   Files for testing the application's track mode setting. These should play at
   the reference level if the player is in track mode. They will play too
   quietly if the album gain is used, and too loud if no gain is applied.
+
+## Optional
+
+### APEv2 Tags
+
+Some applications, such as the `mp3gain` command line tool (by default, at
+least), store the calculated gain information in an APEv2 tag. The format used
+is the same as used in VorbisComment-style tags.
+
+#### Basic functionality
+
+- `apev2-track-only.mp3`
+
+  File that has only APEv2 format track gain and peak present. It should play
+  at the reference level regardless of whether the player is in track or album
+  mode. If the gain is not applied, the playback will be too quiet.
+
+#### Tag conflicts
+
+The APEv2 tags can be present on an MP3 file in addition to ID3 tags of
+various types. If both are present with conflicting values, the recommended
+format should be preferred.
+
+- `apev2-track-prefer-id3-txxx.mp3`
+
+  A file with conflicting APEv2 and ID3v2 TXXX ReplayGain tags. Use in track
+  gain mode. If the preferred ID3 TXXX tag is used, the file will play back at
+  the reference level. Instead, if the APEv2 tag is used, the file will play
+  back too quietly. In album gain mode, or if neither tag is used, the file
+  will play back too loud.

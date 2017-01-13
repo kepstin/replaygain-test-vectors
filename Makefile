@@ -45,26 +45,26 @@ flac/reference-12.flac: reference.flac | flac
 MP3_SAMPLES = mp3/id3v24-txxx-track-only.mp3 \
 	      mp3/id3v23-txxx-track-only.mp3 \
 	      mp3/id3v24-txxx-track.mp3 \
-	      mp3/id3v23-txxx-track.mp3
+	      mp3/id3v23-txxx-track.mp3 \
+	      mp3/apev2-track-only.mp3 \
+	      mp3/apev2-track-prefer-id3-txxx.mp3
 
 ALL_SAMPLES += $(MP3_SAMPLES)
 
-mp3:
-	$(MKDIR_P) mp3
 .PHONY: clean_mp3
 clean_mp3:
 	$(RM_F) mp3/*.mp3
 
 mp3/reference.mp3: FFMPEG_FORMAT = $(FFMPEG_MP3_VBR)
-mp3/reference.mp3: flac/reference.flac | mp3
+mp3/reference.mp3: flac/reference.flac
 	$(FFMPEG_CMD)
 
 mp3/reference+12.mp3: FFMPEG_FORMAT = $(FFMPEG_MP3_VBR)
-mp3/reference+12.mp3: flac/reference+12.flac | mp3
+mp3/reference+12.mp3: flac/reference+12.flac
 	$(FFMPEG_CMD)
 
 mp3/reference-12.mp3: FFMPEG_FORMAT = $(FFMPEG_MP3_VBR)
-mp3/reference-12.mp3: flac/reference-12.flac | mp3
+mp3/reference-12.mp3: flac/reference-12.flac
 	$(FFMPEG_CMD)
 
 mp3/id3v24-txxx-track-only.mp3: mp3/reference-12.mp3
@@ -82,6 +82,15 @@ mp3/id3v24-txxx-track.mp3: mp3/reference+12.mp3
 mp3/id3v23-txxx-track.mp3: mp3/reference+12.mp3
 	$(CP) $^ $@ && \
 	./tagger.py --mp3 --id3v23 --id3-txxx --tg -12 --tp 0 --ag -24 --ap 0 $@
+
+mp3/apev2-track-only.mp3: mp3/reference-12.mp3
+	$(CP) $^ $@ && \
+	./tagger.py --mp3 --mp3-apev2 --tg 12 --tp -12 $@
+
+mp3/apev2-track-prefer-id3-txxx.mp3: mp3/reference+12.mp3
+	$(CP) $^ $@ && \
+	./tagger.py --mp3 --id3-txxx --tg -12 --tp 0 --ag 0 --ap 0 $@ && \
+	./tagger.py --mp3 --mp3-apev2 --tg -24 --tp 0 --ag 0 --ap 0 $@
 
 default: $(ALL_SAMPLES)
 
