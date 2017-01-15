@@ -72,16 +72,16 @@ def format_rg_peak(peak, args):
 def write_id3(id3, args):
     if args.id3_txxx:
         if args.tg is not None:
-            id3.add(mutagen.id3.TXXX(desc=TG,
+            id3.add(mutagen.id3.TXXX(desc=TG, encoding=args.id3v2_encoding,
                 text=[format_rg_gain(args.tg, args)]))
         if args.tp is not None:
-            id3.add(mutagen.id3.TXXX(desc=TP,
+            id3.add(mutagen.id3.TXXX(desc=TP, encoding=args.id3v2_encoding,
                 text=[format_rg_peak(args.tp, args)]))
         if args.ag is not None:
-            id3.add(mutagen.id3.TXXX(desc=AG,
+            id3.add(mutagen.id3.TXXX(desc=AG, encoding=args.id3v2_encoding,
                 text=[format_rg_gain(args.ag, args)]))
         if args.ap is not None:
-            id3.add(mutagen.id3.TXXX(desc=AP,
+            id3.add(mutagen.id3.TXXX(desc=AP, encoding=args.id3v2_encoding,
                 text=[format_rg_peak(args.ap, args)]))
 
     if args.id3_rva2:
@@ -152,9 +152,15 @@ parser.add_argument('--id3v23', dest='id3v2_version',
 parser.add_argument('--id3-txxx', action='store_true',
         help='write ID3 tags using the modern TXXX format')
 parser.add_argument('--id3-rva2', action='store_true',
-        help='write ID3 tags using RVA2 (2.4) or XRVA (2.3) frames')
+        help='write ID3 tags using RVA2 (ID3v2.4) frames')
+parser.add_argument('--id3-latin1', dest='id3v2_encoding',
+        action='store_const', const=0, default=1,
+        help='write ID3 tags using Latin1 encoding rather than UTF-16')
+parser.add_argument('--id3-utf8', dest='id3v2_encoding',
+        action='store_const', const=3, default=1,
+        help='write ID3v2.4 tags using UTF-8 encoding rather than UTF-16')
 parser.add_argument('--mp3-info', action='store_true',
-        help='write gain values to the MP3 Xing or Info tag')
+        help='write gain values to the LAME information tag')
 parser.add_argument('--mp3-apev2', action='store_true',
         help='write gain values to an APEv2 tag on MP3 (like mp3gain)')
 

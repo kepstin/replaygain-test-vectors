@@ -42,10 +42,20 @@ flac/reference-12.flac: FFMPEG_FORMAT = $(VOL_MINUS_12) $(FFMPEG_FLAC)
 flac/reference-12.flac: reference.flac | flac
 	$(FFMPEG_CMD)
 
-MP3_SAMPLES = mp3/id3v24-txxx-track-only.mp3 \
+MP3_SAMPLES = mp3/reference.mp3 \
+	      mp3/reference+12.mp3 \
+	      mp3/reference-12.mp3 \
+	      mp3/id3v24-txxx-track-only.mp3 \
 	      mp3/id3v23-txxx-track-only.mp3 \
 	      mp3/id3v24-txxx-track.mp3 \
 	      mp3/id3v23-txxx-track.mp3 \
+	      mp3/id3v24-txxx-album.mp3 \
+	      mp3/id3v23-txxx-album.mp3 \
+	      mp3/id3v23-txxx-track-nopeak.mp3 \
+	      mp3/id3v23-txxx-album-nopeak.mp3 \
+	      mp3/id3v23-txxx-peak.mp3 \
+	      mp3/id3v23-txxx-latin1.mp3 \
+	      mp3/id3v24-txxx-utf8.mp3 \
 	      mp3/apev2-track-only.mp3 \
 	      mp3/apev2-track-prefer-id3-txxx.mp3
 
@@ -68,31 +78,61 @@ mp3/reference-12.mp3: flac/reference-12.flac
 	$(FFMPEG_CMD)
 
 mp3/id3v24-txxx-track-only.mp3: mp3/reference-12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3-txxx --tg 12 --tp -12 $@
 
 mp3/id3v23-txxx-track-only.mp3: mp3/reference-12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3v23 --id3-txxx --tg 12 --tp -12 $@
 
 mp3/id3v24-txxx-track.mp3: mp3/reference+12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3-txxx --tg -12 --tp 0 --ag -24 --ap 0 $@
 
 mp3/id3v23-txxx-track.mp3: mp3/reference+12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3v23 --id3-txxx --tg -12 --tp 0 --ag -24 --ap 0 $@
 
+mp3/id3v24-txxx-album.mp3: mp3/reference+12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3-txxx --tg -24 --tp 0 --ag -12 --ap 0 $@
+
+mp3/id3v23-txxx-album.mp3: mp3/reference+12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3v23 --id3-txxx --tg -24 --tp 0 --ag -12 --ap 0 $@
+
+mp3/id3v23-txxx-track-nopeak.mp3: mp3/reference-12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3v23 --id3-txxx --tg 12 --tp 0 --ag 0 --ap 12 $@
+
+mp3/id3v23-txxx-album-nopeak.mp3: mp3/reference-12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3v23 --id3-txxx --tg 24 --tp -24 --ag 12 --ap 0 $@
+
+mp3/id3v23-txxx-peak.mp3: mp3/reference+12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3v23 --id3-txxx --tg 0 --tp 12 --ag 0 --ap 24 $@
+
+mp3/id3v23-txxx-latin1.mp3: mp3/reference-12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3v23 --id3-latin1 --id3-txxx --tg 12 --tp -12 $@
+
+mp3/id3v24-txxx-utf8.mp3: mp3/reference-12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mp3 --id3-utf8 --id3-txxx --tg 12 --tp -12 $@
+
 mp3/apev2-track-only.mp3: mp3/reference-12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --mp3-apev2 --tg 12 --tp -12 $@
 
 mp3/apev2-track-prefer-id3-txxx.mp3: mp3/reference+12.mp3
-	$(CP) $^ $@ && \
+	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3-txxx --tg -12 --tp 0 --ag 0 --ap 0 $@ && \
 	./tagger.py --mp3 --mp3-apev2 --tg -24 --tp 0 --ag 0 --ap 0 $@
 
 default: $(ALL_SAMPLES)
+
+$(ALL_SAMPLES): tagger.py
 
 .PHONY: clean
 clean: clean_mp3

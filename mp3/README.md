@@ -25,6 +25,57 @@ and most modern ReplayGain scanning tools.
   the reference level if the player is in track mode. They will play too
   quietly if the album gain is used, and too loud if no gain is applied.
 
+- `id3v24-txxx-album.mp3` and `id3v23-txxx-album.mp3`
+
+  Files for testing the application's album mode setting. These should play at
+  the reference level if the player is in album mode. They will play too
+  quietly if the track gain is used, and too loud if no gain is applied.
+
+#### Clipping prevention
+
+These files are designed to verify the behaviour of the players clipping
+prevention support, which should be a configurable option that allows selecting
+between lowering the gain based on stored peak value ReplayGain tags, or
+keeping the desired level and applying an audio limiter or compression filter
+to reduce audible artifacts.
+
+- `id3v23-txxx-track-nopeak.mp3` and `id3v23-txxx-album-nopeak.mp3`
+  
+  These test files are designed to verify that the player allows raising the
+  gain past the maximum headroom indicated when the player is configured not
+  to reduce gain on tracks which might clip.
+
+  The first file tests track mode; the second covers album mode. In both cases,
+  the files will play too quietly if peak limiting is applied, and at the
+  reference level if the peak values are correctly ignored.
+
+- `id3v23-txxx-peak.mp3`
+
+  This test file verifies that the player will reduce the playback gain based
+  on the stored peak value when the gain reduction feature is enabled.
+
+  The same test file is used for both album and track mode. In track mode, the
+  file should play back at the reference level. In album mode, the file should
+  play back quieter than the reference level.
+
+  If the gains are switched (track mode is quiet, album mode is reference),
+  then the wrong peak values are being used. If the playback is loud, then
+  the peak values are not being applied.
+
+#### Text encoding
+
+ID3v2 tags can use multiple text encodings. These tests simply verify that the
+tags are read correctly. All files contain track gain values only. They will
+play back at the reference level if the tags are read, and quietly otherwise.
+
+- `id3v23-txxx-latin1.mp3`
+
+  Verify that tags are supported in the legacy 8-bit encoding format.
+
+- `id3v24-txxx-utf8.mp3`
+
+  Verify that tags are supported in the (v2.4-only) multibyte UTF-8 encoding.
+
 ## Optional
 
 ### APEv2 Tags
