@@ -56,6 +56,7 @@ MP3_SAMPLES = mp3/reference.mp3 \
 	      mp3/id3v23-txxx-peak.mp3 \
 	      mp3/id3v23-txxx-latin1.mp3 \
 	      mp3/id3v24-txxx-utf8.mp3 \
+	      mp3/id3v23-txxx-case.mp3 \
 	      mp3/apev2-track-only.mp3 \
 	      mp3/apev2-track-prefer-id3-txxx.mp3
 
@@ -121,6 +122,10 @@ mp3/id3v24-txxx-utf8.mp3: mp3/reference-12.mp3
 	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3-utf8 --id3-txxx --tg 12 --tp -12 $@
 
+mp3/id3v23-txxx-case.mp3: mp3/reference+12.mp3
+	$(CP) $< $@ && \
+	./tagger.py --mixed-case --mp3 --id3v23 --id3-txxx --tg -12 --tp 0 --ag -24 --ap 0 $@
+
 mp3/apev2-track-only.mp3: mp3/reference-12.mp3
 	$(CP) $< $@ && \
 	./tagger.py --mp3 --mp3-apev2 --tg 12 --tp -12 $@
@@ -132,7 +137,7 @@ mp3/apev2-track-prefer-id3-txxx.mp3: mp3/reference+12.mp3
 
 default: $(ALL_SAMPLES)
 
-$(ALL_SAMPLES): tagger.py
+$(ALL_SAMPLES): tagger.py Makefile
 
 .PHONY: clean
 clean: clean_mp3

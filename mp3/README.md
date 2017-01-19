@@ -19,17 +19,23 @@ and most modern ReplayGain scanning tools.
   reference level regardless of whether the player is in track or album mode.
   If no gain is applied, they will play back too quietly.
 
+  track gain: 12 dB, track peak: 0.251189, album gain & album peak not set.
+
 - `id3v24-txxx-track.mp3` and `id3v23-txxx-track.mp3`
 
   Files for testing the application's track mode setting. These should play at
   the reference level if the player is in track mode. They will play too
   quietly if the album gain is used, and too loud if no gain is applied.
 
+  track gain: -12 dB, track peak: 1.0, album gain: -24 dB, album peak: 1.0
+
 - `id3v24-txxx-album.mp3` and `id3v23-txxx-album.mp3`
 
   Files for testing the application's album mode setting. These should play at
   the reference level if the player is in album mode. They will play too
   quietly if the track gain is used, and too loud if no gain is applied.
+
+  track gain: -24 dB, track peak: 1.0, album gain: -12 dB, album peak: 1.0
 
 #### Clipping prevention
 
@@ -49,6 +55,13 @@ to reduce audible artifacts.
   the files will play too quietly if peak limiting is applied, and at the
   reference level if the peak values are correctly ignored.
 
+  `track-nopeak`: track gain: 12 dB, track peak: 1.0,
+                  album gain: 0 dB, album peak: 3.981072
+
+  `album-nopeak`: track gain: 24 dB, track peak: 0.063096, 
+                  album gain: 12 dB, album peak: 1.0
+
+
 - `id3v23-txxx-peak.mp3`
 
   This test file verifies that the player will reduce the playback gain based
@@ -61,6 +74,9 @@ to reduce audible artifacts.
   If the gains are switched (track mode is quiet, album mode is reference),
   then the wrong peak values are being used. If the playback is loud, then
   the peak values are not being applied.
+
+  track gain: 0 dB, track peak: 3.981072,
+  album gain: 0 dB, album peak: 15.848932
 
 #### Text encoding
 
@@ -75,6 +91,20 @@ play back at the reference level if the tags are read, and quietly otherwise.
 - `id3v24-txxx-utf8.mp3`
 
   Verify that tags are supported in the (v2.4-only) multibyte UTF-8 encoding.
+
+#### ReplayGain tag formatting
+
+The ReplayGain tag spec gives a very specific format to use for the tags, but
+applications vary in how well they follow it. These tests verify the
+robustness of the tag parser.
+
+- `id3v23-txxx-case.mp3`
+
+  Verify that the `REPLAYGAIN_*_GAIN` tags are matched case-insensitively.
+
+  In track mode, this file will play back at the reference level. In album
+  mode, it will play back quietly. If the tags aren't read correctly it will
+  play back louder than the reference.
 
 ## Optional
 
