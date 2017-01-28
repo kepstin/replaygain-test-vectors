@@ -25,6 +25,7 @@ import logging
 import mutagen
 import mutagen.apev2
 import mutagen.mp3
+import mutagen.oggvorbis
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -125,6 +126,11 @@ def write_mp3(args):
         write_generic(apev2, args)
         apev2.save()
 
+def write_oggvorbis(args):
+    oggvorbis = mutagen.oggvorbis.OggVorbis(args.file)
+    write_generic(oggvorbis.tags, args)
+    oggvorbis.save()
+
 parser = argparse.ArgumentParser(description='ReplayGain tag testing tool')
 
 parser.add_argument('file', help='file to update')
@@ -138,6 +144,8 @@ parser.add_argument('--ap', type=float, help='album peak level (dBFS)')
 # File format handlers to use
 parser.add_argument('--mp3', dest='formats', action='append_const',
         const=write_mp3, help='write MP3 (usually ID3) format tags')
+parser.add_argument('--oggvorbis', dest='formats', action='append_const',
+        const=write_oggvorbis, help='write Ogg Vorbis native tags')
 
 # Options common to multiple tag formats
 parser.add_argument('--mixed-case', action='store_true',

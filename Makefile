@@ -15,6 +15,7 @@ FFMPEG_MP3_VBR = -c libmp3lame -q 4 -f mp3
 FFMPEG_MP3_CBR = -c libmp3lame -b:a 160K -f mp3
 FFMPEG_MP4_ALAC = -c alac -f ipod
 FFMPEG_MP4_AAC = -c aac -b 192K -f ipod
+FFMPEG_OGG_VORBIS = -c libvorbis -q 4 -f ogg
 FFMPEG_WAV = -c pcm_s16le -f wav
 
 FFMPEG_CMD = $(FFMPEG) -i $< $(FFMPEG_OPTS) $(FFMPEG_FORMAT) $@
@@ -135,9 +136,36 @@ mp3/apev2-track-prefer-id3-txxx.mp3: mp3/reference+12.mp3
 	./tagger.py --mp3 --id3-txxx --tg -12 --tp 0 --ag 0 --ap 0 $@ && \
 	./tagger.py --mp3 --mp3-apev2 --tg -24 --tp 0 --ag 0 --ap 0 $@
 
+OGG_VORBIS_SAMPLES = oggvorbis/reference.ogg \
+		     oggvorbis/reference+12.ogg \
+		     oggvorbis/reference-12.ogg \
+		     oggvorbis/track-only.ogg
+
+ALL_SAMPLES += $(OGG_VORBIS_SAMPLES)
+
+.PHONY: clean_oggvorbis
+clean_oggvorbis:
+	$(RM_F) oggvorbis/*.ogg
+
+oggvorbis/reference.ogg: FFMPEG_FORMAT = $(FFMPEG_OGG_VORBIS)
+oggvorbis/reference.ogg: flac/reference.flac
+	$(FFMPEG_CMD)
+
+oggvorbis/reference+12.ogg: FFMPEG_FORMAT = $(FFMPEG_OGG_VORBIS)
+oggvorbis/reference+12.ogg: flac/reference+12.flac
+	$(FFMPEG_CMD)
+
+oggvorbis/reference-12.ogg: FFMPEG_FORMAT = $(FFMPEG_OGG_VORBIS)
+oggvorbis/reference-12.ogg: flac/reference-12.flac
+	$(FFMPEG_CMD)
+
+oggvorbis/track-only.ogg: oggvorbis/reference-12.ogg
+	$(CP) $< $@ && \
+	./tagger.py --oggvorbis --tg 12 --tp -12 $@
+
 default: $(ALL_SAMPLES)
 
 $(ALL_SAMPLES): tagger.py Makefile
 
 .PHONY: clean
-clean: clean_mp3
+clean: clean_mp3 clean_oggvorbis
