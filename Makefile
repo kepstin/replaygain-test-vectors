@@ -139,7 +139,9 @@ mp3/apev2-track-prefer-id3-txxx.mp3: mp3/reference+12.mp3
 OGG_VORBIS_SAMPLES = oggvorbis/reference.ogg \
 		     oggvorbis/reference+12.ogg \
 		     oggvorbis/reference-12.ogg \
-		     oggvorbis/track-only.ogg
+		     oggvorbis/track-only.ogg \
+		     oggvorbis/track.ogg \
+		     oggvorbis/album.ogg
 
 ALL_SAMPLES += $(OGG_VORBIS_SAMPLES)
 
@@ -162,6 +164,14 @@ oggvorbis/reference-12.ogg: flac/reference-12.flac
 oggvorbis/track-only.ogg: oggvorbis/reference-12.ogg
 	$(CP) $< $@ && \
 	./tagger.py --oggvorbis --tg 12 --tp -12 $@
+
+oggvorbis/track.ogg: oggvorbis/reference+12.ogg
+	$(CP) $< $@ && \
+	./tagger.py --oggvorbis --tg -12 --tp 0 --ag -24 --ap 0 $@
+
+oggvorbis/album.ogg: oggvorbis/reference+12.ogg
+	$(CP) $< $@ && \
+	./tagger.py --oggvorbis --tg -24 --tp 0 --ag -12 --ap 0 $@
 
 default: $(ALL_SAMPLES)
 

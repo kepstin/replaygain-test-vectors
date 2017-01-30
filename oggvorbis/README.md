@@ -23,3 +23,19 @@ and the
   If no gain is applied, it will play back too quietly.
 
   track gain: 12 dB, track peak: 0.251189, album gain & peak not set.
+
+- `track.ogg`
+
+  File for testing the application's track mode setting. It should play at the
+  reference level if the player is in track mode. It will play too quietly if
+  the album gain is used, and too loud if no gain is applied.
+
+  track gain: -12 dB, track peak: 1.0, album gain: -24 dB, album peak: 1.0
+
+- `album.ogg`
+
+  File for testing the application's album mode setting. It should play at the
+  reference level if the player is in album mode. It will play too quietly if
+  the track gain is used, and too loud if no gain is applied.
+
+  track gain: -24 dB, track peak: 1.0, album gain: -12 dB, album peak: 1.0
