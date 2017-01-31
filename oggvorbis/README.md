@@ -63,3 +63,19 @@ to reduce audible artifacts.
 
   `album-nopeak`: track gain: 24 dB, track peak: 0.063096, 
                   album gain: 12 dB, album peak: 1.0
+
+- `peak.ogg`
+
+  This test file verifies that the player will reduce the playgain gain based
+  on the stored peak value when the gain reduction feature is enabled.
+
+  The same test file is used for both album and track mode. In track mode, the
+  file should play back at the reference level. In album mode, the file should
+  play back quieter than the reference level (match the `reference-12` file).
+
+  If the gains are switched (track mode is quiet, album mode is reference),
+  then the wrong peak values are being used. If the playback is loud, then
+  the peak values are not being applied.
+
+  track gain: 0 dB, track peak: 3.981072,
+  album gain: 0 dB, album peak: 15.848932

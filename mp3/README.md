@@ -69,7 +69,7 @@ to reduce audible artifacts.
 
   The same test file is used for both album and track mode. In track mode, the
   file should play back at the reference level. In album mode, the file should
-  play back quieter than the reference level.
+  play back quieter than the reference level (match the `reference-12` file).
 
   If the gains are switched (track mode is quiet, album mode is reference),
   then the wrong peak values are being used. If the playback is loud, then

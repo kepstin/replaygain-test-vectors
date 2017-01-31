@@ -143,7 +143,8 @@ OGG_VORBIS_SAMPLES = oggvorbis/reference.ogg \
 		     oggvorbis/track.ogg \
 		     oggvorbis/album.ogg \
 		     oggvorbis/track-nopeak.ogg \
-		     oggvorbis/album-nopeak.ogg
+		     oggvorbis/album-nopeak.ogg \
+		     oggvorbis/peak.ogg
 
 ALL_SAMPLES += $(OGG_VORBIS_SAMPLES)
 
@@ -182,6 +183,10 @@ oggvorbis/track-nopeak.ogg: oggvorbis/reference-12.ogg
 oggvorbis/album-nopeak.ogg: oggvorbis/reference-12.ogg
 	$(CP) $< $@ && \
 	./tagger.py --oggvorbis --vc --tg 24 --tp -24 --ag 12 --ap 0 $@
+
+oggvorbis/peak.ogg: oggvorbis/reference+12.ogg
+	$(CP) $< $@ && \
+	./tagger.py --oggvorbis --vc --tg 0 --tp 12 --ag 0 --ap 24 $@
 
 default: $(ALL_SAMPLES)
 
