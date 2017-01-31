@@ -75,8 +75,8 @@ to reduce audible artifacts.
   then the wrong peak values are being used. If the playback is loud, then
   the peak values are not being applied.
 
-  track gain: 0 dB, track peak: 3.981072,
-  album gain: 0 dB, album peak: 15.848932
+  track gain: 24 dB, track peak: 0.251189,
+  album gain: 24 dB, album peak: 0.063096
 
 #### Text encoding
 
@@ -94,17 +94,20 @@ play back at the reference level if the tags are read, and quietly otherwise.
 
 #### ReplayGain tag formatting
 
-The ReplayGain tag spec gives a very specific format to use for the tags, but
-applications vary in how well they follow it. These tests verify the
-robustness of the tag parser.
+The modern ReplayGain tag spec gives a specific format to use for the tags,
+but tag-writing applications have significant variations in the formats
+they actually use. These tests verify the robustness of the tag parser.
 
 - `id3v23-txxx-case.mp3`
 
   Verify that the `REPLAYGAIN_*_GAIN` tags are matched case-insensitively.
 
-  In track mode, this file will play back at the reference level. In album
-  mode, it will play back quietly. If the tags aren't read correctly it will
-  play back louder than the reference.
+  In track mode this file will play back at the reference level. In album
+  mode it will play back at 12 dB quieter than the reference level. If the
+  tags aren't read correctly it will play back 12 dB louder than the
+  reference level.
+
+  track gain: -12 dB, track peak: 1.0, album gain: -24 dB, album peak: 1.0
 
 ## Optional
 

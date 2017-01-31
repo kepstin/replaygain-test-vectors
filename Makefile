@@ -111,9 +111,9 @@ mp3/id3v23-txxx-album-nopeak.mp3: mp3/reference-12.mp3
 	$(CP) $< $@ && \
 	./tagger.py --mp3 --id3v23 --id3-txxx --tg 24 --tp -24 --ag 12 --ap 0 $@
 
-mp3/id3v23-txxx-peak.mp3: mp3/reference+12.mp3
+mp3/id3v23-txxx-peak.mp3: mp3/reference-12.mp3
 	$(CP) $< $@ && \
-	./tagger.py --mp3 --id3v23 --id3-txxx --tg 0 --tp 12 --ag 0 --ap 24 $@
+	./tagger.py --mp3 --id3v23 --id3-txxx --tg 24 --tp -12 --ag 24 --ap -24 $@
 
 mp3/id3v23-txxx-latin1.mp3: mp3/reference-12.mp3
 	$(CP) $< $@ && \
@@ -144,7 +144,8 @@ OGG_VORBIS_SAMPLES = oggvorbis/reference.ogg \
 		     oggvorbis/album.ogg \
 		     oggvorbis/track-nopeak.ogg \
 		     oggvorbis/album-nopeak.ogg \
-		     oggvorbis/peak.ogg
+		     oggvorbis/peak.ogg \
+		     oggvorbis/case.ogg
 
 ALL_SAMPLES += $(OGG_VORBIS_SAMPLES)
 
@@ -184,9 +185,13 @@ oggvorbis/album-nopeak.ogg: oggvorbis/reference-12.ogg
 	$(CP) $< $@ && \
 	./tagger.py --oggvorbis --vc --tg 24 --tp -24 --ag 12 --ap 0 $@
 
-oggvorbis/peak.ogg: oggvorbis/reference+12.ogg
+oggvorbis/peak.ogg: oggvorbis/reference-12.ogg
 	$(CP) $< $@ && \
-	./tagger.py --oggvorbis --vc --tg 0 --tp 12 --ag 0 --ap 24 $@
+	./tagger.py --oggvorbis --vc --tg 24 --tp -12 --ag 24 --ap -24 $@
+
+oggvorbis/case.ogg: oggvorbis/reference+12.ogg
+	$(CP) $< $@ && \
+	./tagger.py --mixed-case --oggvorbis --vc --tg -12 --tp 0 --ag -24 --ap 0 $@
 
 default: $(ALL_SAMPLES)
 

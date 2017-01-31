@@ -77,5 +77,22 @@ to reduce audible artifacts.
   then the wrong peak values are being used. If the playback is loud, then
   the peak values are not being applied.
 
-  track gain: 0 dB, track peak: 3.981072,
-  album gain: 0 dB, album peak: 15.848932
+  track gain: 24 dB, track peak: 0.251189,
+  album gain: 24 dB, album peak: 0.063096
+
+#### ReplayGain tag formatting
+
+The modern ReplayGain tag spec gives a specific format to use for the tags,
+but tag-writing applications have significant variations in the formats
+they actually use. These tests verify the robustness of the tag parser.
+
+- `case.ogg`
+
+  Verify that the `REPLAYGAIN_*_GAIN` tags are matched case-insensitively.
+
+  In track mode this file will play back at the reference level. In album
+  mode it will play back at 12 dB quieter than the reference level. If the
+  tags aren't read correctly it will play back 12 dB louder than the
+  reference level.
+
+  track gain: -12 dB, track peak: 1.0, album gain: -24 dB, album peak: 1.0
