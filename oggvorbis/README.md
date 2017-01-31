@@ -39,3 +39,27 @@ and the
   the track gain is used, and too loud if no gain is applied.
 
   track gain: -24 dB, track peak: 1.0, album gain: -12 dB, album peak: 1.0
+
+#### Clipping prevention
+
+These files are designed to verify the behaviour of the players clipping
+prevention support, which should be a configurable option that allows selecting
+between lowering the gain based on stored peak value ReplayGain tags, or
+keeping the desired level and applying an audio limiter or compression filter
+to reduce audible artifacts.
+
+- `track-nopeak.ogg` and `album-nopeak.ogg`
+
+  These test files are designed to verify that the player allows raising the
+  gain past the maximum headroom indicated when the player is configured not
+  to reduce gain on tracks which might clip.
+
+  The first file tests track mode; the second covers album mode. In both cases,
+  the files will play too quietly if peak limiting is applied, and at the
+  reference level if the peak values are correctly ignored.
+
+  `track-nopeak`: track gain: 12 dB, track peak: 1.0,
+                  album gain: 0 dB, album peak: 3.981072
+
+  `album-nopeak`: track gain: 24 dB, track peak: 0.063096, 
+                  album gain: 12 dB, album peak: 1.0
