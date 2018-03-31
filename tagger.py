@@ -85,6 +85,7 @@ def format_oggopus_gain(gain, args):
 
 
 def write_id3(id3, args):
+    # Storing in TXXX frames is the modern recommended format
     if args.id3_txxx:
         if args.tg is not None:
             id3.add(mutagen.id3.TXXX(desc=TG, encoding=args.id3v2_encoding,
@@ -99,6 +100,7 @@ def write_id3(id3, args):
             id3.add(mutagen.id3.TXXX(desc=AP, encoding=args.id3v2_encoding,
                 text=[format_rg_peak(args.ap, args)]))
 
+    # Storing in RVA2 frames is a common legacy format
     if args.id3_rva2:
         if args.id3v2_version < 4:
             logger.warning("Writing ID3v2.4 RVA2 to an ID3v2.3 file")
@@ -130,9 +132,12 @@ def write_generic(tags, args):
         tags[AP] = [format_rg_peak(args.ap, args)]
 
 def write_vorbiscomment(tags, args):
+    # The generic comment format is recommended for most containers using
+    # vorbiscomment.
     if args.vc_standard:
         write_generic(tags, args)
 
+    # The Ogg Opus specification has a bespoke set of gain normalization tags
     if args.vc_oggopus:
         if args.tp is not None or args.ap is not None:
             logger.warning("Ogg Opus R128 gain tags do not support peak info")
@@ -142,11 +147,25 @@ def write_vorbiscomment(tags, args):
         if args.ag is not None:
             tags[R128_AG] = [format_oggopus_gain(args.ag, args)]
 
+def write_flac(args):
+    flac = mutagen.flac.FLAC(args.file)
+    write_vorbiscomment(flac.tags, args)
+    flac.save(deleteid3=False)
+
+    # A few legacy tools have made FLAC files with ID3 tags. Should never be
+    # used.
+    if args.flac_id3:
+        id3 = mutagen.id3.ID3(args.file)
+        write_id3(id3.tags, args)
+        id3.save(v2_version=args.id3v2_version)
+
 def write_mp3(args):
     mp3 = mutagen.mp3.MP3(args.file)
     write_id3(mp3.tags, args)
     mp3.save(v2_version=args.id3v2_version)
 
+    # Generic comment format in an APEv2 tag attached to the mp3 is used by a
+    # few legacy tools, e.g. the command-line "mp3gain"
     if args.mp3_apev2:
         apev2 = mutagen.apev2.APEv2File(args.file)
         write_generic(apev2, args)
@@ -168,6 +187,8 @@ parser.add_argument('--ag', type=float, help='album gain adjustment (dB)')
 parser.add_argument('--ap', type=float, help='album peak level (dBFS)')
 
 # File format handlers to use
+parser.add_argument('--flac', dest='formats', action='append_const',
+        const=write_flac, help='write FLAC (usually VorbisComment) format tags')
 parser.add_argument('--mp3', dest='formats', action='append_const',
         const=write_mp3, help='write MP3 (usually ID3) format tags')
 parser.add_argument('--oggvorbis', dest='formats', action='append_const',
@@ -178,6 +199,10 @@ parser.add_argument('--mixed-case', action='store_true',
         help='for tag formats that preserve case, use a random mix of case')
 
 # Options for specific tag formats
+
+# FLAC
+parser.add_argument('--flac-id3', action='store_true',
+        help='write gain values to an ID3 tag on FLAC (nonstandard)')
 
 # MP3/ID3
 parser.add_argument('--id3v23', dest='id3v2_version',
