@@ -176,6 +176,13 @@ def write_oggvorbis(args):
     write_vorbiscomment(oggvorbis.tags, args)
     oggvorbis.save()
 
+def write_oggopus(args):
+    oggopus = mutagen.oggopus.OggOpus(args.file)
+    write_vorbiscomment(oggopus.tags, args)
+    oggopus.save()
+
+    # TODO: Allow setting the header gain field
+
 parser = argparse.ArgumentParser(description='ReplayGain tag testing tool')
 
 parser.add_argument('file', help='file to update')
@@ -193,6 +200,8 @@ parser.add_argument('--mp3', dest='formats', action='append_const',
         const=write_mp3, help='write MP3 (usually ID3) format tags')
 parser.add_argument('--oggvorbis', dest='formats', action='append_const',
         const=write_oggvorbis, help='write Ogg Vorbis native tags')
+parser.add_argument('--oggopus', dest='formats', action='append_const',
+        const=write_oggopus, help='write Ogg Opus native tags')
 
 # Options common to multiple tag formats
 parser.add_argument('--mixed-case', action='store_true',
