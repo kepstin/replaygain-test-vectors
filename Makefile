@@ -28,6 +28,10 @@ FLAC_SAMPLES = flac/reference.flac \
 	       flac/reference-12.flac
 ALL_SAMPLES += $(FLAC_SAMPLES)
 
+.PHONY: clean_flac
+clean_flac:
+	$(RM_F) flac/*.flac
+
 flac:
 	$(MKDIR_P) flac
 
@@ -198,4 +202,4 @@ default: $(ALL_SAMPLES)
 $(ALL_SAMPLES): tagger.py Makefile
 
 .PHONY: clean
-clean: clean_mp3 clean_oggvorbis
+clean: clean_flac clean_mp3 clean_oggvorbis
